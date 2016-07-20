@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="author" content="">
+<meta name="copyright" content="">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=5.0,user-scalable=no"/>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<!-- 启用360浏览器的极速模式(webkit) -->
+<meta name="renderer" content="webkit">
+<!-- 删除默认的苹果工具栏和菜单栏 -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<!-- 避免IE使用兼容模式 -->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- 针对手持设备优化，主要是针对一些老的不识别viewport的浏览器，比如黑莓 -->
+<meta name="HandheldFriendly" content="true">
+<!-- 微软的老式浏览器 -->
+<meta name="MobileOptimized" content="320">
+<!-- UC强制全屏 -->
+<meta name="full-screen" content="yes">
+<!-- QQ强制全屏 -->
+<meta name="x5-fullscreen" content="true">
+<!-- UC应用模式 -->
+<meta name="browsermode" content="application">
+<!-- QQ应用模式 -->
+<meta name="x5-page-mode" content="app">
+<!-- windows phone 点击无高光 -->
+<meta name="msapplication-tap-highlight" content="no">
+<meta name="applicable-device" content="mobile">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<style type="text/css">
+ html,body{
+ 	padding:0;
+ 	margin:0;
+ 	width: 100%;
+ 	height: 100%;
+ }
+ #canvas{
+ 	position: fixed;
+ 	bottom:10%;
+ 	left:0;
+ 	right: 0;
+ 	margin:0 auto;
+ 	background-color:#000;
+ }
+</style>
+</head>
+<body>
+<div id="canvas-warp">   
+    <canvas id="canvas">   
+        你的浏览器居然不支持Canvas？！赶快换一个吧！！   
+    </canvas>   
+</div>  	
+</body>
+<script src="js/jquery.min.js"></script>
+<script type="text/javascript">
+  	    var position={
+	    	px0:0,
+	    	px1:0,
+	    	py0:0,
+	    	py1:0
+	    } 
+   	   console.time(1);
+        var canvas = document.getElementById("canvas");   
+        canvas.width =320;   
+        canvas.height =320;   
+        var context = canvas.getContext("2d");   
+        context.fillStyle = "#FFF";   
+        context.fillRect(0,0,canvas.width,canvas.height);    
+        drawRoundRect(context, 0, 0, 400, 400, 5);   
+        context.fillStyle = "#000";   
+        context.strokeStyle = "#000";   
+        context.stroke();   
+        context.fill();   
+  		init(context,2);
+  		console.timeEnd(1);
+    function ranColor(){
+    	var r=~~(Math.random()*(1<<24));
+    	var r2=r+010101;
+    	var c=r.toString(16);
+    	var c2=r2.toString(16);
+    	var color='#'+c;
+    	var colorX="#"+c2;  	
+    		return {color:color,colorx:colorX};  	
+    }
+    function init(context,num){
+    	var _num=num*num; 
+    	 var gap=5;
+    	 var w=~~(320-(gap*(num+1)))/num;
+    	 var _ran=ranColor();
+    	 var _color=_ran.color;
+    	 var _colorx=_ran.colorx;
+    	 var rIndex=~~(Math.random()*_num);
+    	 var c=rIndex%num;
+    	 var r=~~(rIndex/num);
+    	 position.px0=gap *(c+1) + w * c;
+     	 position.px1=position.px0+w;
+    	 position.py0=gap * (r+1) + w * r;
+    	 position.py1=position.py0+w;   	 
+    	 console.log(rIndex+" "+c+" "+r);
+    	 // console.log("px0 "+position.px0);
+    	 // console.log("px1 "+position.px1);
+    	 // console.log("py0 "+position.py0);
+    	 // console.log("py1 "+position.py1);
+        for(var i = 0; i < num; ++i){   
+            for(var j = 0; j < num; ++j){
+                drawRoundRect(context,  gap *(i+1) + w * i,  gap * (j+1) + w * j, w, w, 5);  
+                context.fillStyle =_color;  
+                if(i==c&&j==r){
+                	context.fillStyle =_colorx;
+                }                  
+                context.strokeStyle = "transparent";   
+                context.stroke();   
+                context.fill();   
+            }   
+        }
+       
+ 		canvas.addEventListener("click",function(e){
+	    	var x,y;
+	    	if(e.layerX||e.layerY==0){
+	    		x=e.layerX;
+	    		y=e.layerY;
+	    	}else if(e.offsetX||e.offsetX==0){
+	    		x=e.offsetX;
+	    		y=e.offsetY;
+	    	}	    	
+	    	if(x<position.px1&&x>position.px0){
+	    		if(y<position.py1&&y>position.py0){	    			
+	    			console.log("right");
+	    			context.clearRect(0,0,canvas.width,canvas.height);
+	    			nextLevel();	    					    			
+	    		}
+	    	}	    	    	
+  		},false); 
+    }
+
+    var nums=2;
+    function nextLevel(){ 	
+    	if(nums==10){
+    		nextLevel=function(){
+    			setTimeout(init(context,10),1000);   			
+    		}
+    		return;
+    	}
+    	nums++;
+    	setTimeout(init(context,nums),1000); 
+    }
+    function drawRoundRect(cxt, x, y, width, height, radius){   
+        cxt.beginPath();   
+        cxt.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 3 / 2);   
+        cxt.lineTo(width - radius + x, y);   
+        cxt.arc(width - radius + x, radius + y, radius, Math.PI * 3 / 2, Math.PI * 2);   
+        cxt.lineTo(width + x, height + y - radius);   
+        cxt.arc(width - radius + x, height - radius + y, radius, 0, Math.PI * 1 / 2);   
+        cxt.lineTo(radius + x, height +y);   
+        cxt.arc(radius + x, height - radius + y, radius, Math.PI * 1 / 2, Math.PI);   
+        cxt.closePath();   
+    }    
+</script>
+</html>
